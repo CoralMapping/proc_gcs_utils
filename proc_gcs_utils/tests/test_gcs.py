@@ -6,10 +6,10 @@ from unittest.mock import patch
 
 import pytest
 
-from src.storage import (download_files_from_gcs,
-                         list_bucket_contents,
-                         upload_files_to_gcs)
-from src.tests.test_data import TEST_SERVICE_ACCOUNT_KEY
+from proc_gcs_utils.gcs import (download_files_from_gcs,
+                                list_bucket_contents,
+                                upload_files_to_gcs)
+from proc_gcs_utils.tests.test_data import TEST_SERVICE_ACCOUNT_KEY
 
 
 GCP_PROJECT_NAME = 'coral-atlas'
@@ -34,7 +34,7 @@ def test_gcs_bucket_upload_download():
         with open(os.path.join(input_dir, filename1), 'w') as f:
             f.write(file_1_contents)
 
-        with patch('src.storage.os.environ', test_environ):
+        with patch('proc_gcs_utils.gcs.os.environ', test_environ):
             upload_files_to_gcs(GCP_PROJECT_NAME,
                                 GCS_BUCKET_NAME,
                                 GCS_BUCKET_PATH,
@@ -47,13 +47,13 @@ def test_gcs_bucket_upload_download():
         with open(os.path.join(forbidden_dir, forbidden_file_name), 'w') as f:
             f.write(forbidden_file_contents)
 
-        with patch('src.storage.os.environ', test_environ):
+        with patch('proc_gcs_utils.gcs.os.environ', test_environ):
             upload_files_to_gcs(GCP_PROJECT_NAME,
                                 GCS_BUCKET_NAME,
                                 GCS_BUCKET_PATH + '/forbidden',
                                 forbidden_dir)
 
-        with patch('src.storage.os.environ', test_environ):
+        with patch('proc_gcs_utils.gcs.os.environ', test_environ):
             blobs = list_bucket_contents(GCP_PROJECT_NAME,
                                          GCS_BUCKET_NAME,
                                          GCS_BUCKET_PATH)
@@ -68,7 +68,7 @@ def test_gcs_bucket_upload_download():
         os.mkdir(output_dir)
 
         try:
-            with patch('src.storage.os.environ', test_environ):
+            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
                 download_files_from_gcs(GCP_PROJECT_NAME,
                                         GCS_BUCKET_NAME,
                                         GCS_BUCKET_PATH,
@@ -79,7 +79,7 @@ def test_gcs_bucket_upload_download():
             with open(os.path.join(output_dir, filename1)) as f:
                 assert f.read() == file_1_contents
         finally:
-            with patch('src.storage.os.environ', test_environ):
+            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
                 blobs = list_bucket_contents(GCP_PROJECT_NAME,
                                              GCS_BUCKET_NAME,
                                              GCS_BUCKET_PATH,
