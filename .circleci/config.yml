@@ -1,0 +1,19 @@
+version: 2.1
+executors:
+  circleci_executor:
+    docker:
+      - image: circleci/python:3.6.9
+jobs:
+  test:
+    executor: circleci_executor
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run: sudo pip install pipenv
+      - run: pipenv install
+      - run: make test
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test: {}
