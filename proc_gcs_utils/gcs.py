@@ -15,8 +15,17 @@ def _get_credentials() -> service_account.Credentials:
     return credentials
 
 
-def _get_storage_bucket(gcp_project_name: str,
-                        gcs_bucket_name: str) -> storage.bucket.Bucket:
+def get_storage_bucket(gcp_project_name: str,
+                       gcs_bucket_name: str) -> storage.bucket.Bucket:
+    """Get a Google Cloud Storage bucket
+
+    Args:
+      gcp_project_name (str): the Google Cloud Project name
+      gcs_bucket_name (str): the Google Cloud Storage bucket name
+
+    Returns:
+      google.cloud.storage.bucket.Bucket instance
+    """
     storage_client = storage.Client(project=gcp_project_name,
                                     credentials=_get_credentials())
     bucket = storage_client.bucket(gcs_bucket_name)
@@ -46,7 +55,7 @@ def _upload_files_to_bucket(gcp_project_name: str,
                             gcs_bucket_name: str,
                             gcs_bucket_path: str,
                             file_paths: List[str]) -> None:
-    bucket = _get_storage_bucket(gcp_project_name, gcs_bucket_name)
+    bucket = get_storage_bucket(gcp_project_name, gcs_bucket_name)
 
     ioloop = asyncio.get_event_loop()
     tasks = asyncio.gather(*[
@@ -79,8 +88,9 @@ def list_bucket_contents(gcp_project_name: str,
       gcp_project_name (str): the Google Cloud Project name
       gcs_bucket_name (str): the Google Cloud Storage bucket name
       gcs_bucket_path (str): the storage path in the bucket
+      recurse (bool): when True, include the contents of all subfolders (default False)
     """
-    bucket = _get_storage_bucket(gcp_project_name, gcs_bucket_name)
+    bucket = get_storage_bucket(gcp_project_name, gcs_bucket_name)
     if not gcs_bucket_path.endswith('/'):
         gcs_bucket_path = gcs_bucket_path + '/'
     if recurse:
