@@ -82,7 +82,7 @@ def list_bucket_contents(gcp_project_name: str,
                          gcs_bucket_name: str,
                          gcs_bucket_path: str,
                          recurse: bool=False) -> HTTPIterator:
-    """List the contents of a Google Cloud Storage bucket
+    """List the blobs in a Google Cloud Storage bucket
 
     Args:
       gcp_project_name (str): the Google Cloud Project name
@@ -105,7 +105,7 @@ def list_bucket_contents(gcp_project_name: str,
 
 def list_bucket_folders(gcp_project_name: str,
                         gcs_bucket_name: str,
-                        gcs_bucket_path: str) -> set:
+                        gcs_bucket_path: str) -> list:
     """List the 'folders' in a Google Cloud Storage bucket path
 
     Args:
@@ -113,7 +113,7 @@ def list_bucket_folders(gcp_project_name: str,
       gcs_bucket_name (str): the Google Cloud Storage bucket name
       gcs_bucket_path (str): the storage path in the bucket
 
-    Returns a set of strings
+    Returns a list of strings
     """
     folders = set()
     prefix_length = len(gcs_bucket_path.split('/'))
@@ -125,7 +125,7 @@ def list_bucket_folders(gcp_project_name: str,
         if len(blob_path_segments) > prefix_length + 1:
             folders.add(blob.name.split('/')[prefix_length])
 
-    return folders
+    return list(folders)
 
 
 def download_files_from_gcs(gcp_project_name: str,

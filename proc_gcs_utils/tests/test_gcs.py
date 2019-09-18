@@ -84,7 +84,7 @@ def test_gcs_bucket_upload_download():
                                               GCS_BUCKET_NAME,
                                               GCS_BUCKET_PATH)
 
-            assert folders == {TOO_DEEP_FOLDER_NAME}
+            assert folders == [TOO_DEEP_FOLDER_NAME]
 
             # Verify we can download the test files
             output_dir = os.path.join(temp_path, 'out')
