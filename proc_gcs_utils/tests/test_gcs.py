@@ -8,13 +8,15 @@ import pytest
 
 from proc_gcs_utils.gcs import (download_files_from_gcs,
                                 list_bucket_contents,
+                                list_bucket_folders,
                                 upload_files_to_gcs)
 from proc_gcs_utils.tests.test_data import TEST_SERVICE_ACCOUNT_KEY
 
 
 GCP_PROJECT_NAME = 'coral-atlas'
 GCS_BUCKET_NAME = 'coral-atlas-integration-tests'
-GCS_BUCKET_PATH = 'test'
+GCS_BUCKET_PATH = 'path/to/test/data'
+TOO_DEEP_FOLDER_NAME = 'too_deep'
 
 
 @pytest.mark.integration
@@ -23,6 +25,8 @@ def test_gcs_bucket_upload_download():
         'SERVICE_ACCOUNT_KEY': TEST_SERVICE_ACCOUNT_KEY
     }
     with tempfile.TemporaryDirectory() as temp_path:
+
+        # Upload some files that we should read for this test
         filename0 = ''.join(random.choices(string.ascii_letters, k=10))
         file_0_contents = 'This is file 0'
         filename1 = ''.join(random.choices(string.ascii_letters, k=10))
@@ -40,34 +44,52 @@ def test_gcs_bucket_upload_download():
                                 GCS_BUCKET_PATH,
                                 input_dir)
 
-        forbidden_file_name = 'forbidden_file'
-        forbidden_file_contents = 'Do not return this file'
-        forbidden_dir = os.path.join(input_dir, 'forbidden')
-        os.mkdir(forbidden_dir)
-        with open(os.path.join(forbidden_dir, forbidden_file_name), 'w') as f:
-            f.write(forbidden_file_contents)
-
-        with patch('proc_gcs_utils.gcs.os.environ', test_environ):
-            upload_files_to_gcs(GCP_PROJECT_NAME,
-                                GCS_BUCKET_NAME,
-                                GCS_BUCKET_PATH + '/forbidden',
-                                forbidden_dir)
-
-        with patch('proc_gcs_utils.gcs.os.environ', test_environ):
-            blobs = list_bucket_contents(GCP_PROJECT_NAME,
-                                         GCS_BUCKET_NAME,
-                                         GCS_BUCKET_PATH)
-
-        for blob in blobs:
-            assert blob.name in [
-                '{0}/{1}'.format(GCS_BUCKET_PATH, filename0),
-                '{0}/{1}'.format(GCS_BUCKET_PATH, filename1)
-            ]
-
-        output_dir = os.path.join(temp_path, 'out')
-        os.mkdir(output_dir)
-
         try:
+            # Upload some files that should not be returned
+            too_deep_file_name = 'too_deep_file'
+            too_deep_file_contents = 'Do not return this file'
+            too_deep_dir = os.path.join(input_dir, TOO_DEEP_FOLDER_NAME)
+            os.mkdir(too_deep_dir)
+            with open(os.path.join(too_deep_dir, too_deep_file_name), 'w') as f:
+                f.write(too_deep_file_contents)
+
+            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+                upload_files_to_gcs(GCP_PROJECT_NAME,
+                                    GCS_BUCKET_NAME,
+                                    '{0}/{1}'.format(GCS_BUCKET_PATH, TOO_DEEP_FOLDER_NAME),
+                                    too_deep_dir)
+
+                upload_files_to_gcs(GCP_PROJECT_NAME,
+                                    GCS_BUCKET_NAME,
+                                    '{0}/{1}/{2}'.format(GCS_BUCKET_PATH,
+                                                         TOO_DEEP_FOLDER_NAME,
+                                                         'deeper_still'),
+                                    too_deep_dir)
+
+            # Verify we can list the test files
+            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+                blobs = list_bucket_contents(GCP_PROJECT_NAME,
+                                             GCS_BUCKET_NAME,
+                                             GCS_BUCKET_PATH)
+
+            for blob in blobs:
+                assert blob.name in [
+                    '{0}/{1}'.format(GCS_BUCKET_PATH, filename0),
+                    '{0}/{1}'.format(GCS_BUCKET_PATH, filename1)
+                ]
+
+            # Verify we can list the subfolder(s) in the test data folder
+            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+                folders = list_bucket_folders(GCP_PROJECT_NAME,
+                                              GCS_BUCKET_NAME,
+                                              GCS_BUCKET_PATH)
+
+            assert folders == {TOO_DEEP_FOLDER_NAME}
+
+            # Verify we can download the test files
+            output_dir = os.path.join(temp_path, 'out')
+            os.mkdir(output_dir)
+
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
                 download_files_from_gcs(GCP_PROJECT_NAME,
                                         GCS_BUCKET_NAME,

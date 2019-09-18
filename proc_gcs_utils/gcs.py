@@ -89,6 +89,8 @@ def list_bucket_contents(gcp_project_name: str,
       gcs_bucket_name (str): the Google Cloud Storage bucket name
       gcs_bucket_path (str): the storage path in the bucket
       recurse (bool): when True, include the contents of all subfolders (default False)
+    
+    Returns a google.api_core.page_iterator.HTTPIterator
     """
     bucket = get_storage_bucket(gcp_project_name, gcs_bucket_name)
     if not gcs_bucket_path.endswith('/'):
@@ -99,6 +101,31 @@ def list_bucket_contents(gcp_project_name: str,
         blobs = bucket.list_blobs(prefix=gcs_bucket_path, delimiter='/')
 
     return blobs
+
+
+def list_bucket_folders(gcp_project_name: str,
+                        gcs_bucket_name: str,
+                        gcs_bucket_path: str) -> set:
+    """List the 'folders' in a Google Cloud Storage bucket path
+
+    Args:
+      gcp_project_name (str): the Google Cloud Project name
+      gcs_bucket_name (str): the Google Cloud Storage bucket name
+      gcs_bucket_path (str): the storage path in the bucket
+
+    Returns a set of strings
+    """
+    folders = set()
+    prefix_length = len(gcs_bucket_path.split('/'))
+    for blob in list_bucket_contents(gcp_project_name,
+                                     gcs_bucket_name,
+                                     gcs_bucket_path,
+                                     recurse=True):
+        blob_path_segments = blob.name.split('/')
+        if len(blob_path_segments) > prefix_length + 1:
+            folders.add(blob.name.split('/')[prefix_length])
+
+    return folders
 
 
 def download_files_from_gcs(gcp_project_name: str,
