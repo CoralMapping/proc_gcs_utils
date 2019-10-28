@@ -9,6 +9,7 @@ import pytest
 from proc_gcs_utils.gcs import (download_files_from_gcs,
                                 list_bucket_contents,
                                 list_bucket_folders,
+                                upload_file_to_gcs,
                                 upload_files_to_gcs)
 from proc_gcs_utils.tests.test_data import TEST_SERVICE_ACCOUNT_KEY
 
@@ -31,6 +32,8 @@ def test_gcs_bucket_upload_download():
         file_0_contents = 'This is file 0'
         filename1 = ''.join(random.choices(string.ascii_letters, k=10))
         file_1_contents = 'This is file 1'
+        filename2 = ''.join(random.choices(string.ascii_letters, k=10))
+        file_2_contents = 'This is file 2'
         input_dir = os.path.join(temp_path, 'in')
         os.mkdir(input_dir)
         with open(os.path.join(input_dir, filename0), 'w') as f:
@@ -43,6 +46,15 @@ def test_gcs_bucket_upload_download():
                                 GCS_BUCKET_NAME,
                                 GCS_BUCKET_PATH,
                                 input_dir)
+
+        with open(os.path.join(input_dir, filename2), 'w') as f:
+            f.write(file_2_contents)
+
+        with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+            upload_file_to_gcs(GCP_PROJECT_NAME,
+                               GCS_BUCKET_NAME,
+                               GCS_BUCKET_PATH,
+                               os.path.join(input_dir, filename2))
 
         try:
             # Upload some files that should not be returned
@@ -75,7 +87,8 @@ def test_gcs_bucket_upload_download():
             for blob in blobs:
                 assert blob.name in [
                     '{0}/{1}'.format(GCS_BUCKET_PATH, filename0),
-                    '{0}/{1}'.format(GCS_BUCKET_PATH, filename1)
+                    '{0}/{1}'.format(GCS_BUCKET_PATH, filename1),
+                    '{0}/{1}'.format(GCS_BUCKET_PATH, filename2)
                 ]
 
             # Verify we can list the subfolder(s) in the test data folder
@@ -100,6 +113,8 @@ def test_gcs_bucket_upload_download():
                 assert f.read() == file_0_contents
             with open(os.path.join(output_dir, filename1)) as f:
                 assert f.read() == file_1_contents
+            with open(os.path.join(output_dir, filename2)) as f:
+                assert f.read() == file_2_contents
         finally:
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
                 blobs = list_bucket_contents(GCP_PROJECT_NAME,

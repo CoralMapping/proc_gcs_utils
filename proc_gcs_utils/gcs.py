@@ -147,6 +147,25 @@ def download_files_from_gcs(gcp_project_name: str,
     _download_blobs_from_bucket(blobs, directory)
 
 
+def upload_file_to_gcs(gcp_project_name: str,
+                       gcs_bucket_name: str,
+                       gcs_bucket_path: str,
+                       file_path: str) -> None:
+    """Upload a single file to a Google Cloud Storage Bucket
+
+    Args:
+      gcp_project_name (str): the Google Cloud Project name
+      gcs_bucket_name (str): the Google Cloud Storage bucket name
+      gcs_bucket_path (str): the storage path in the bucket
+      file_path (str): the full path to the local directory containing the
+                       file to upload
+    """
+    _upload_files_to_bucket(gcp_project_name,
+                            gcs_bucket_name,
+                            gcs_bucket_path,
+                            [file_path])
+
+
 def upload_files_to_gcs(gcp_project_name: str,
                         gcs_bucket_name: str,
                         gcs_bucket_path: str,
