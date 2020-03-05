@@ -128,6 +128,25 @@ def list_bucket_folders(gcp_project_name: str,
     return list(folders)
 
 
+def download_file_from_gcs(gcp_project_name: str,
+                           gcs_bucket_name: str,
+                           gcs_file_path: str,
+                           local_file_path: str) -> None:
+    """Download objects from a Google Cloud Storage bucket
+
+    Args:
+      gcp_project_name (str): the Google Cloud Project name
+      gcs_bucket_name (str): the Google Cloud Storage bucket name
+      gcs_file_path (str): the source object path in GCS,
+                           including the file name
+      local_file_path (str): the full path where the object should
+                             be downloaded, including the file name
+    """
+    bucket = get_storage_bucket(gcp_project_name, gcs_bucket_name)
+    blob = bucket.blob(gcs_file_path)
+    blob.download_to_filename(local_file_path)
+
+
 def download_files_from_gcs(gcp_project_name: str,
                             gcs_bucket_name: str,
                             gcs_bucket_path: str,

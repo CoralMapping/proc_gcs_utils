@@ -6,7 +6,8 @@ from unittest.mock import patch
 
 import pytest
 
-from proc_gcs_utils.gcs import (download_files_from_gcs,
+from proc_gcs_utils.gcs import (download_file_from_gcs,
+                                download_files_from_gcs,
                                 list_bucket_contents,
                                 list_bucket_folders,
                                 upload_file_to_gcs,
@@ -103,6 +104,19 @@ def test_gcs_bucket_upload_download():
             output_dir = os.path.join(temp_path, 'out')
             os.mkdir(output_dir)
 
+            # ...one at a time
+            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+                download_file_from_gcs(GCP_PROJECT_NAME,
+                                       GCS_BUCKET_NAME,
+                                       '{0}/{1}'.format(GCS_BUCKET_PATH, filename0),
+                                       os.path.join(output_dir, filename0))
+
+            with open(os.path.join(output_dir, filename0)) as f:
+                assert f.read() == file_0_contents
+            os.remove(os.path.join(output_dir, filename0))
+
+
+            # ...all at once
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
                 download_files_from_gcs(GCP_PROJECT_NAME,
                                         GCS_BUCKET_NAME,
