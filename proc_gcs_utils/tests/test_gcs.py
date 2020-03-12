@@ -10,6 +10,7 @@ from proc_gcs_utils.gcs import (download_file_from_gcs,
                                 download_files_from_gcs,
                                 list_bucket_contents,
                                 list_bucket_folders,
+                                rename_file,
                                 upload_file_to_gcs,
                                 upload_files_to_gcs)
 from proc_gcs_utils.tests.test_data import TEST_SERVICE_ACCOUNT_KEY
@@ -91,6 +92,22 @@ def test_gcs_bucket_upload_download():
                     '{0}/{1}'.format(GCS_BUCKET_PATH, filename1),
                     '{0}/{1}'.format(GCS_BUCKET_PATH, filename2)
                 ]
+
+            # Verify we can move a test file
+            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+                rename_file(GCP_PROJECT_NAME,
+                            GCS_BUCKET_NAME,
+                            '{0}/{1}'.format(GCS_BUCKET_PATH, filename0),
+                            '{0}/renamed/{1}'.format(GCS_BUCKET_PATH, filename0))
+                blobs = list_bucket_contents(GCP_PROJECT_NAME,
+                                             GCS_BUCKET_NAME,
+                                             '{}/renamed'.format(GCS_BUCKET_PATH))
+                for blob in blobs:
+                    assert blob.name == '{0}/renamed/{1}'.format(GCS_BUCKET_PATH, filename0)
+                rename_file(GCP_PROJECT_NAME,
+                            GCS_BUCKET_NAME,
+                            '{0}/renamed/{1}'.format(GCS_BUCKET_PATH, filename0),
+                            '{0}/{1}'.format(GCS_BUCKET_PATH, filename0))
 
             # Verify we can list the subfolder(s) in the test data folder
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
