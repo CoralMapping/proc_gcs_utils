@@ -6,7 +6,8 @@ from unittest.mock import patch
 
 import pytest
 
-from proc_gcs_utils.gcs import (download_file_from_gcs,
+from proc_gcs_utils.gcs import (copy_file,
+                                download_file_from_gcs,
                                 download_files_from_gcs,
                                 list_bucket_contents,
                                 list_bucket_folders,
@@ -99,11 +100,26 @@ def test_gcs_bucket_upload_download():
                             GCS_BUCKET_NAME,
                             '{0}/{1}'.format(GCS_BUCKET_PATH, filename0),
                             '{0}/renamed/{1}'.format(GCS_BUCKET_PATH, filename0))
+
+                # Find it in its new location
                 blobs = list_bucket_contents(GCP_PROJECT_NAME,
                                              GCS_BUCKET_NAME,
                                              '{}/renamed'.format(GCS_BUCKET_PATH))
+                contents = []
                 for blob in blobs:
-                    assert blob.name == '{0}/renamed/{1}'.format(GCS_BUCKET_PATH, filename0)
+                    contents.append(blob.name)
+                assert '{0}/renamed/{1}'.format(GCS_BUCKET_PATH, filename0) in contents
+
+                # Verify it was removed from its old location
+                blobs = list_bucket_contents(GCP_PROJECT_NAME,
+                                             GCS_BUCKET_NAME,
+                                             GCS_BUCKET_PATH)
+                contents = []
+                for blob in blobs:
+                    contents.append(blob.name)
+                assert '{0}/{1}'.format(GCS_BUCKET_PATH, filename0) not in contents
+
+                # Move it back
                 rename_file(GCP_PROJECT_NAME,
                             GCS_BUCKET_NAME,
                             '{0}/renamed/{1}'.format(GCS_BUCKET_PATH, filename0),
