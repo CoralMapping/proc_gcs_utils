@@ -125,6 +125,37 @@ def test_gcs_bucket_upload_download():
                             '{0}/renamed/{1}'.format(GCS_BUCKET_PATH, filename0),
                             '{0}/{1}'.format(GCS_BUCKET_PATH, filename0))
 
+            # Verify we can copy a test file
+            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+                copy_file(GCP_PROJECT_NAME,
+                          GCS_BUCKET_NAME,
+                          '{0}/{1}'.format(GCS_BUCKET_PATH, filename0),
+                          '{0}/copied/{1}'.format(GCS_BUCKET_PATH, filename0))
+
+                # Find it in its new location
+                blobs = list_bucket_contents(GCP_PROJECT_NAME,
+                                             GCS_BUCKET_NAME,
+                                             '{}/copied'.format(GCS_BUCKET_PATH))
+                contents = []
+                for blob in blobs:
+                    contents.append(blob.name)
+                assert '{0}/copied/{1}'.format(GCS_BUCKET_PATH, filename0) in contents
+
+                # Verify it also still exists in its old location
+                blobs = list_bucket_contents(GCP_PROJECT_NAME,
+                                             GCS_BUCKET_NAME,
+                                             GCS_BUCKET_PATH)
+                contents = []
+                for blob in blobs:
+                    contents.append(blob.name)
+                assert '{0}/{1}'.format(GCS_BUCKET_PATH, filename0) in contents
+
+                # Move it back
+                rename_file(GCP_PROJECT_NAME,
+                            GCS_BUCKET_NAME,
+                            '{0}/copied/{1}'.format(GCS_BUCKET_PATH, filename0),
+                            '{0}/{1}'.format(GCS_BUCKET_PATH, filename0))
+
             # Verify we can list the subfolder(s) in the test data folder
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
                 folders = list_bucket_folders(GCP_PROJECT_NAME,

@@ -185,6 +185,25 @@ def rename_file(gcp_project_name: str,
     bucket.rename_blob(blob, new_gcs_file_path)
 
 
+def copy_file(gcp_project_name: str,
+              gcs_bucket_name: str,
+              original_gcs_file_path: str,
+              new_gcs_file_path: str) -> None:
+    """Copy an object in a Google Cloud Storage bucket
+
+    Args:
+      gcp_project_name (str): the Google Cloud Project name
+      gcs_bucket_name (str): the Google Cloud Storage bucket name
+      original_gcs_file_path (str): the current full Google Cloud Storage path to
+                                    the object, including the file name
+      new_gcs_file_path (str): the new full Google Cloud Storage path to the object,
+                               including the file name
+    """
+    bucket = get_storage_bucket(gcp_project_name, gcs_bucket_name)
+    blob = bucket.blob(original_gcs_file_path)
+    bucket.copy_blob(blob, bucket, new_gcs_file_path)
+
+
 def upload_file_to_gcs(gcp_project_name: str,
                        gcs_bucket_name: str,
                        gcs_bucket_path: str,
