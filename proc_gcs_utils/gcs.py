@@ -146,9 +146,9 @@ def download_file_from_gcs(gcp_project_name: str,
     bucket = get_storage_bucket(gcp_project_name, gcs_bucket_name)
     blob = bucket.blob(gcs_file_path)
     try:
-      blob.download_to_filename(local_file_path)
+        blob.download_to_filename(local_file_path)
     except google.api_core.exceptions.NotFound:
-      raise ValueError('File not found at {}'.format(gcs_file_path))
+        raise ValueError('File not found at {}'.format(gcs_file_path))
 
 
 def download_files_from_gcs(gcp_project_name: str,
