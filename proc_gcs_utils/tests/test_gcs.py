@@ -9,6 +9,7 @@ import pytest
 from proc_gcs_utils.gcs import (copy_file,
                                 download_file,
                                 download_files,
+                                gcs_join,
                                 list_bucket_contents,
                                 list_bucket_folders,
                                 rename_file,
@@ -21,6 +22,23 @@ GCP_PROJECT_NAME = 'coral-atlas'
 GCS_BUCKET_NAME = 'coral-atlas-integration-tests'
 GCS_BUCKET_PATH = 'path/to/test/data'
 TOO_DEEP_FOLDER_NAME = 'too_deep'
+
+
+class TestGcsJoin:
+
+    @pytest.mark.parametrize('include_protocol,expected_path', [
+        (False, 'path/to/bogus/file.txt'),
+        (True, 'gs://path/to/bogus/file.txt')
+    ])
+    def test_gcs_join(self, include_protocol, expected_path):
+        path_components = ['path', 'to', 'bogus', 'file.txt']
+        actual = gcs_join(path_components, include_protocol)
+
+        assert actual == expected_path
+
+    def test_raises_if_no_path_segments_provided(self):
+        with pytest.raises(ValueError):
+            gcs_join([])
 
 
 @pytest.mark.integration
@@ -71,14 +89,12 @@ def test_gcs_bucket_upload_download():
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
                 upload_files(GCP_PROJECT_NAME,
                              GCS_BUCKET_NAME,
-                             '{0}/{1}'.format(GCS_BUCKET_PATH, TOO_DEEP_FOLDER_NAME),
+                             gcs_join([GCS_BUCKET_PATH, TOO_DEEP_FOLDER_NAME]),
                              too_deep_dir)
 
                 upload_files(GCP_PROJECT_NAME,
                              GCS_BUCKET_NAME,
-                             '{0}/{1}/{2}'.format(GCS_BUCKET_PATH,
-                                                  TOO_DEEP_FOLDER_NAME,
-                                                  'deeper_still'),
+                             gcs_join([GCS_BUCKET_PATH, TOO_DEEP_FOLDER_NAME, 'deeper_still']),
                              too_deep_dir)
 
             # Verify we can list the test files
@@ -89,26 +105,24 @@ def test_gcs_bucket_upload_download():
 
             for blob in blobs:
                 assert blob.name in [
-                    '{0}/{1}'.format(GCS_BUCKET_PATH, filename0),
-                    '{0}/{1}'.format(GCS_BUCKET_PATH, filename1),
-                    '{0}/{1}'.format(GCS_BUCKET_PATH, filename2)
+                    gcs_join([GCS_BUCKET_PATH, f]) for f in [filename0, filename1, filename2]
                 ]
 
             # Verify we can move a test file
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
                 rename_file(GCP_PROJECT_NAME,
                             GCS_BUCKET_NAME,
-                            '{0}/{1}'.format(GCS_BUCKET_PATH, filename0),
-                            '{0}/renamed/{1}'.format(GCS_BUCKET_PATH, filename0))
+                            gcs_join([GCS_BUCKET_PATH, filename0]),
+                            gcs_join([GCS_BUCKET_PATH, 'renamed', filename0]))
 
                 # Find it in its new location
                 blobs = list_bucket_contents(GCP_PROJECT_NAME,
                                              GCS_BUCKET_NAME,
-                                             '{}/renamed'.format(GCS_BUCKET_PATH))
+                                             gcs_join([GCS_BUCKET_PATH, 'renamed']))
                 contents = []
                 for blob in blobs:
                     contents.append(blob.name)
-                assert '{0}/renamed/{1}'.format(GCS_BUCKET_PATH, filename0) in contents
+                assert gcs_join([GCS_BUCKET_PATH, 'renamed', filename0]) in contents
 
                 # Verify it was removed from its old location
                 blobs = list_bucket_contents(GCP_PROJECT_NAME,
@@ -117,29 +131,29 @@ def test_gcs_bucket_upload_download():
                 contents = []
                 for blob in blobs:
                     contents.append(blob.name)
-                assert '{0}/{1}'.format(GCS_BUCKET_PATH, filename0) not in contents
+                assert gcs_join([GCS_BUCKET_PATH, filename0]) not in contents
 
                 # Move it back
                 rename_file(GCP_PROJECT_NAME,
                             GCS_BUCKET_NAME,
-                            '{0}/renamed/{1}'.format(GCS_BUCKET_PATH, filename0),
-                            '{0}/{1}'.format(GCS_BUCKET_PATH, filename0))
+                            gcs_join([GCS_BUCKET_PATH, 'renamed', filename0]),
+                            gcs_join([GCS_BUCKET_PATH, filename0]))
 
             # Verify we can copy a test file
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
                 copy_file(GCP_PROJECT_NAME,
                           GCS_BUCKET_NAME,
-                          '{0}/{1}'.format(GCS_BUCKET_PATH, filename0),
-                          '{0}/copied/{1}'.format(GCS_BUCKET_PATH, filename0))
+                          gcs_join([GCS_BUCKET_PATH, filename0]),
+                          gcs_join([GCS_BUCKET_PATH, 'copied', filename0]))
 
                 # Find it in its new location
                 blobs = list_bucket_contents(GCP_PROJECT_NAME,
                                              GCS_BUCKET_NAME,
-                                             '{}/copied'.format(GCS_BUCKET_PATH))
+                                             gcs_join([GCS_BUCKET_PATH, 'copied']))
                 contents = []
                 for blob in blobs:
                     contents.append(blob.name)
-                assert '{0}/copied/{1}'.format(GCS_BUCKET_PATH, filename0) in contents
+                assert gcs_join([GCS_BUCKET_PATH, 'copied', filename0]) in contents
 
                 # Verify it also still exists in its old location
                 blobs = list_bucket_contents(GCP_PROJECT_NAME,
@@ -148,13 +162,13 @@ def test_gcs_bucket_upload_download():
                 contents = []
                 for blob in blobs:
                     contents.append(blob.name)
-                assert '{0}/{1}'.format(GCS_BUCKET_PATH, filename0) in contents
+                assert gcs_join([GCS_BUCKET_PATH, filename0]) in contents
 
                 # Move it back
                 rename_file(GCP_PROJECT_NAME,
                             GCS_BUCKET_NAME,
-                            '{0}/copied/{1}'.format(GCS_BUCKET_PATH, filename0),
-                            '{0}/{1}'.format(GCS_BUCKET_PATH, filename0))
+                            gcs_join([GCS_BUCKET_PATH, 'copied', filename0]),
+                            gcs_join([GCS_BUCKET_PATH, filename0]))
 
             # Verify we can list the subfolder(s) in the test data folder
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
@@ -172,7 +186,7 @@ def test_gcs_bucket_upload_download():
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
                 download_file(GCP_PROJECT_NAME,
                               GCS_BUCKET_NAME,
-                              '{0}/{1}'.format(GCS_BUCKET_PATH, filename0),
+                              gcs_join([GCS_BUCKET_PATH, filename0]),
                               os.path.join(output_dir, filename0))
 
             with open(os.path.join(output_dir, filename0)) as f:
@@ -193,6 +207,17 @@ def test_gcs_bucket_upload_download():
                 assert f.read() == file_1_contents
             with open(os.path.join(output_dir, filename2)) as f:
                 assert f.read() == file_2_contents
+
+            # Verify raises ValueError if download file not found
+            try:
+                with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+                    download_file(GCP_PROJECT_NAME,
+                                           GCS_BUCKET_NAME,
+                                           'file/does/not/exists.txt',
+                                           os.path.join(output_dir, 'does_not_exist.txt'))
+            except ValueError:
+                pass
+
         finally:
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
                 blobs = list_bucket_contents(GCP_PROJECT_NAME,
