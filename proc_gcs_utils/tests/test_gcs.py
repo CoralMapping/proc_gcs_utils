@@ -7,13 +7,13 @@ from unittest.mock import patch
 import pytest
 
 from proc_gcs_utils.gcs import (copy_file,
-                                download_file_from_gcs,
-                                download_files_from_gcs,
+                                download_file,
+                                download_files,
                                 list_bucket_contents,
                                 list_bucket_folders,
                                 rename_file,
-                                upload_file_to_gcs,
-                                upload_files_to_gcs)
+                                upload_file,
+                                upload_files)
 from proc_gcs_utils.tests.test_data import TEST_SERVICE_ACCOUNT_KEY
 
 
@@ -45,19 +45,19 @@ def test_gcs_bucket_upload_download():
             f.write(file_1_contents)
 
         with patch('proc_gcs_utils.gcs.os.environ', test_environ):
-            upload_files_to_gcs(GCP_PROJECT_NAME,
-                                GCS_BUCKET_NAME,
-                                GCS_BUCKET_PATH,
-                                input_dir)
+            upload_files(GCP_PROJECT_NAME,
+                         GCS_BUCKET_NAME,
+                         GCS_BUCKET_PATH,
+                         input_dir)
 
         with open(os.path.join(input_dir, filename2), 'w') as f:
             f.write(file_2_contents)
 
         with patch('proc_gcs_utils.gcs.os.environ', test_environ):
-            upload_file_to_gcs(GCP_PROJECT_NAME,
-                               GCS_BUCKET_NAME,
-                               GCS_BUCKET_PATH,
-                               os.path.join(input_dir, filename2))
+            upload_file(GCP_PROJECT_NAME,
+                        GCS_BUCKET_NAME,
+                        GCS_BUCKET_PATH,
+                        os.path.join(input_dir, filename2))
 
         try:
             # Upload some files that should not be returned
@@ -69,17 +69,17 @@ def test_gcs_bucket_upload_download():
                 f.write(too_deep_file_contents)
 
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
-                upload_files_to_gcs(GCP_PROJECT_NAME,
-                                    GCS_BUCKET_NAME,
-                                    '{0}/{1}'.format(GCS_BUCKET_PATH, TOO_DEEP_FOLDER_NAME),
-                                    too_deep_dir)
+                upload_files(GCP_PROJECT_NAME,
+                             GCS_BUCKET_NAME,
+                             '{0}/{1}'.format(GCS_BUCKET_PATH, TOO_DEEP_FOLDER_NAME),
+                             too_deep_dir)
 
-                upload_files_to_gcs(GCP_PROJECT_NAME,
-                                    GCS_BUCKET_NAME,
-                                    '{0}/{1}/{2}'.format(GCS_BUCKET_PATH,
-                                                         TOO_DEEP_FOLDER_NAME,
-                                                         'deeper_still'),
-                                    too_deep_dir)
+                upload_files(GCP_PROJECT_NAME,
+                             GCS_BUCKET_NAME,
+                             '{0}/{1}/{2}'.format(GCS_BUCKET_PATH,
+                                                  TOO_DEEP_FOLDER_NAME,
+                                                  'deeper_still'),
+                             too_deep_dir)
 
             # Verify we can list the test files
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
@@ -170,10 +170,10 @@ def test_gcs_bucket_upload_download():
 
             # ...one at a time
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
-                download_file_from_gcs(GCP_PROJECT_NAME,
-                                       GCS_BUCKET_NAME,
-                                       '{0}/{1}'.format(GCS_BUCKET_PATH, filename0),
-                                       os.path.join(output_dir, filename0))
+                download_file(GCP_PROJECT_NAME,
+                              GCS_BUCKET_NAME,
+                              '{0}/{1}'.format(GCS_BUCKET_PATH, filename0),
+                              os.path.join(output_dir, filename0))
 
             with open(os.path.join(output_dir, filename0)) as f:
                 assert f.read() == file_0_contents
@@ -182,10 +182,10 @@ def test_gcs_bucket_upload_download():
 
             # ...all at once
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
-                download_files_from_gcs(GCP_PROJECT_NAME,
-                                        GCS_BUCKET_NAME,
-                                        GCS_BUCKET_PATH,
-                                        output_dir)
+                download_files(GCP_PROJECT_NAME,
+                               GCS_BUCKET_NAME,
+                               GCS_BUCKET_PATH,
+                               output_dir)
 
             with open(os.path.join(output_dir, filename0)) as f:
                 assert f.read() == file_0_contents

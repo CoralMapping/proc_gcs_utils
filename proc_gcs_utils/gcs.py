@@ -128,7 +128,7 @@ def list_bucket_folders(gcp_project_name: str,
     return list(folders)
 
 
-def download_file_from_gcs(gcp_project_name: str,
+def download_file(gcp_project_name: str,
                            gcs_bucket_name: str,
                            gcs_file_path: str,
                            local_file_path: str) -> None:
@@ -147,7 +147,7 @@ def download_file_from_gcs(gcp_project_name: str,
     blob.download_to_filename(local_file_path)
 
 
-def download_files_from_gcs(gcp_project_name: str,
+def download_files(gcp_project_name: str,
                             gcs_bucket_name: str,
                             gcs_bucket_path: str,
                             directory: str) -> None:
@@ -204,7 +204,7 @@ def copy_file(gcp_project_name: str,
     bucket.copy_blob(blob, bucket, new_gcs_file_path)
 
 
-def upload_file_to_gcs(gcp_project_name: str,
+def upload_file(gcp_project_name: str,
                        gcs_bucket_name: str,
                        gcs_bucket_path: str,
                        file_path: str) -> None:
@@ -223,7 +223,7 @@ def upload_file_to_gcs(gcp_project_name: str,
                             [file_path])
 
 
-def upload_files_to_gcs(gcp_project_name: str,
+def upload_files(gcp_project_name: str,
                         gcs_bucket_name: str,
                         gcs_bucket_path: str,
                         directory: str) -> None:
