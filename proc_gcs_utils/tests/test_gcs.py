@@ -207,6 +207,17 @@ def test_gcs_bucket_upload_download():
                 assert f.read() == file_1_contents
             with open(os.path.join(output_dir, filename2)) as f:
                 assert f.read() == file_2_contents
+
+            # Verify raises ValueError if download file not found
+            try:
+                with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+                    download_file_from_gcs(GCP_PROJECT_NAME,
+                                           GCS_BUCKET_NAME,
+                                           'file/does/not/exists.txt',
+                                           os.path.join(output_dir, 'does_not_exist.txt'))
+            except ValueError:
+                pass
+
         finally:
             with patch('proc_gcs_utils.gcs.os.environ', test_environ):
                 blobs = list_bucket_contents(GCP_PROJECT_NAME,
