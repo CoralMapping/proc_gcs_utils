@@ -16,6 +16,22 @@ def _get_credentials() -> service_account.Credentials:
     return credentials
 
 
+def gcs_join(path_segments, include_protocol=False):
+    """Build a path using GCS path separators
+
+    Args:
+      path_segments - list of string path segments. May include file name.
+      include_protocol - if True, prepend 'gs://' protocol to path.
+    """
+
+    if not path_segments:
+        raise ValueError('At least one path segment is required')
+    if include_protocol:
+        return '/'.join(['gs:/'] + path_segments)
+    else:
+        return '/'.join(path_segments)
+
+
 def get_storage_bucket(gcp_project_name: str,
                        gcs_bucket_name: str) -> storage.bucket.Bucket:
     """Get a Google Cloud Storage bucket
