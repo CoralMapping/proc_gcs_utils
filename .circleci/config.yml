@@ -21,11 +21,11 @@ jobs:
     steps:
       - setup
       - run: |
-        if [ "$CIRCLE_BRANCH" = "develop" ]; then
-          make build beta_tag_suffix=""
-        else
-          make build beta_tag_suffix="-$CIRCLE_BRANCH"
-        fi
+          if [ "$CIRCLE_BRANCH" = "develop" ]; then
+            make build beta_tag_suffix=""
+          else
+            make build beta_tag_suffix="-$CIRCLE_BRANCH"
+          fi
       - persist_to_workspace:
           root: .
           paths:
