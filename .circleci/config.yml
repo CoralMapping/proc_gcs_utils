@@ -33,6 +33,7 @@ jobs:
   publish:
     executor: circleci_executor
     steps:
+      - setup
       - attach_workspace:
           at: .
       - run: touch dist/*.tar.gz
