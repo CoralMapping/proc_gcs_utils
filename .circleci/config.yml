@@ -42,3 +42,9 @@ workflows:
   test:
     jobs:
       - test: {}
+      - build:
+          requires:
+            - test
+      - publish:
+          requires:
+            - build
