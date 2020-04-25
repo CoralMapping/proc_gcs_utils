@@ -4,7 +4,6 @@ commands:
     steps:
       - setup_remote_docker
       - checkout
-      - run: sudo pip install pipenv
       - run: pipenv install
 executors:
   circleci_executor:
