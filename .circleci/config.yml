@@ -36,7 +36,6 @@ jobs:
       - attach_workspace:
           at: .
       - run: touch dist/*.tar.gz
-      - run: ls -al dist/
       - run: make publish pypi_repository_password="$PYPI_REPOSITORY_PASSWORD"
 workflows:
   version: 2
