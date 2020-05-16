@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import re
 from typing import List
 
 import google
@@ -26,11 +27,12 @@ def gcs_join(path_segments, include_protocol=False):
 
     if not path_segments:
         raise ValueError('At least one path segment is required')
+    path = '/'.join(path_segments)
+    path = re.sub('//', '/', path)
+    path = re.sub('/$', '', path)
     if include_protocol:
-        return '/'.join(['gs:/'] + path_segments)
-    else:
-        return '/'.join(path_segments)
-
+        return 'gs://{0}'.format(path)
+    return path
 
 def get_storage_bucket(gcp_project_name: str,
                        gcs_bucket_name: str) -> storage.bucket.Bucket:
