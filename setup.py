@@ -7,7 +7,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="proc-gcs-utils",
-    version="1.0.0",
+    version="1.0.1",
     description="Utility functions for Google Cloud Storage",
     long_description=long_description,
     long_description_content_type="text/markdown",

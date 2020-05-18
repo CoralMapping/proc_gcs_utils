@@ -40,6 +40,15 @@ class TestGcsJoin:
         with pytest.raises(ValueError):
             gcs_join([])
 
+    @pytest.mark.parametrize('input,expected_path', [
+        (['foo', ''], 'foo'),
+        (['foo/', ''], 'foo'),
+        (['foo', '', ''], 'foo')
+    ])
+    def test_no_extra_forward_slashes(self, input, expected_path):
+        actual_path = gcs_join(input)
+        assert actual_path == expected_path
+
 
 @pytest.mark.integration
 def test_gcs_bucket_upload_download():
