@@ -3,6 +3,7 @@ import json
 import os
 import re
 from typing import List
+import warnings
 
 import google
 from google.api_core.page_iterator import HTTPIterator
@@ -21,7 +22,9 @@ def _get_storage_client(gcp_project_name: str) -> storage.client.Client:
         client = storage.Client(project=gcp_project_name,
                                 credentials=credentials)
     else:
-        client = storage.Client(project=gcp_project_name)
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            client = storage.Client(project=gcp_project_name)
 
     return client
 
@@ -235,9 +238,9 @@ def copy_file(gcp_project_name: str,
 
 
 def upload_file(gcp_project_name: str,
-                       gcs_bucket_name: str,
-                       gcs_bucket_path: str,
-                       file_path: str) -> None:
+                gcs_bucket_name: str,
+                gcs_bucket_path: str,
+                file_path: str) -> None:
     """Upload a single file to a Google Cloud Storage Bucket
 
     Args:
@@ -254,9 +257,9 @@ def upload_file(gcp_project_name: str,
 
 
 def upload_files(gcp_project_name: str,
-                        gcs_bucket_name: str,
-                        gcs_bucket_path: str,
-                        directory: str) -> None:
+                 gcs_bucket_name: str,
+                 gcs_bucket_path: str,
+                 directory: str) -> None:
     """Upload files to a Google Cloud Storage Bucket
 
     Args:
