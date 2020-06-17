@@ -1,11 +1,13 @@
+import json
 import os
 import random
 import string
 import tempfile
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
+from proc_gcs_utils import gcs
 from proc_gcs_utils.gcs import (copy_file,
                                 download_file,
                                 download_files,
@@ -48,6 +50,58 @@ class TestGcsJoin:
     def test_no_extra_forward_slashes(self, input, expected_path):
         actual_path = gcs_join(input)
         assert actual_path == expected_path
+
+
+class TestGetClient:
+
+    def test_works_with_service_account_key(self):
+        mock_storage = MagicMock()
+        fake_client = MagicMock()
+        mock_storage.Client.return_value = fake_client
+        mock_os = MagicMock()
+        fake_service_account_key = {'client_email': 'foo@bar.com'}
+        mock_os.environ = {'SERVICE_ACCOUNT_KEY': json.dumps(fake_service_account_key)}
+        mock_service_account = MagicMock()
+        fake_credentials = MagicMock()
+        mock_service_account.Credentials.from_service_account_info.return_value = fake_credentials
+        with patch.multiple('proc_gcs_utils.gcs',
+                            os=mock_os,
+                            service_account=mock_service_account,
+                            storage=mock_storage):
+            actual_client = gcs._get_storage_client(GCP_PROJECT_NAME)
+
+        assert actual_client == fake_client
+        mock_service_account.Credentials.from_service_account_info.assert_called_once_with(fake_service_account_key)
+        mock_storage.Client.assert_called_once_with(project=GCP_PROJECT_NAME,
+                                                    credentials=fake_credentials)
+
+    def test_clear_message_if_key_is_invalid_json(self):
+        mock_os = MagicMock()
+        fake_service_account_key = ''
+        mock_os.environ = {'SERVICE_ACCOUNT_KEY': fake_service_account_key}
+        with pytest.raises(ValueError) as e:
+            with patch('proc_gcs_utils.gcs.os', mock_os):
+                gcs._get_storage_client(GCP_PROJECT_NAME)
+
+        expected_message = 'SERVICE_ACCOUNT_KEY is empty or contains invalid JSON'
+        assert expected_message in e.exconly()
+
+    def test_works_with_supplied_credentials_file(self):
+        mock_storage = MagicMock()
+        fake_client = MagicMock()
+        mock_storage.Client.return_value = fake_client
+        mock_os = MagicMock()
+        mock_os.environ = {}
+        mock_service_account = MagicMock()
+        with patch.multiple('proc_gcs_utils.gcs',
+                            os=mock_os,
+                            service_account=mock_service_account,
+                            storage=mock_storage):
+            actual_client = gcs._get_storage_client(GCP_PROJECT_NAME)
+
+        assert actual_client == fake_client
+        mock_storage.Client.assert_called_once_with(project=GCP_PROJECT_NAME)
+        mock_service_account.Credentials.from_service_account_info.assert_not_called()
 
 
 @pytest.mark.integration

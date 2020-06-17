@@ -11,10 +11,17 @@ from google.oauth2 import service_account
 
 
 def _get_storage_client(gcp_project_name: str) -> storage.client.Client:
-    key = json.loads(os.environ['SERVICE_ACCOUNT_KEY'])
-    credentials = service_account.Credentials.from_service_account_info(key)
-    client = storage.Client(project=gcp_project_name,
-                            credentials=credentials)
+    if 'SERVICE_ACCOUNT_KEY' in os.environ:
+        key = os.environ['SERVICE_ACCOUNT_KEY']
+        try:
+            key = json.loads(key)
+        except json.decoder.JSONDecodeError as e:
+            raise ValueError('SERVICE_ACCOUNT_KEY is empty or contains invalid JSON') from e
+        credentials = service_account.Credentials.from_service_account_info(key)
+        client = storage.Client(project=gcp_project_name,
+                                credentials=credentials)
+    else:
+        client = storage.Client(project=gcp_project_name)
 
     return client
 
