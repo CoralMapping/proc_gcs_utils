@@ -10,11 +10,13 @@ from google.cloud import storage
 from google.oauth2 import service_account
 
 
-def _get_credentials() -> service_account.Credentials:
+def _get_storage_client(gcp_project_name: str) -> storage.client.Client:
     key = json.loads(os.environ['SERVICE_ACCOUNT_KEY'])
     credentials = service_account.Credentials.from_service_account_info(key)
+    client = storage.Client(project=gcp_project_name,
+                            credentials=credentials)
 
-    return credentials
+    return client
 
 
 def gcs_join(path_segments, include_protocol=False):
@@ -45,8 +47,7 @@ def get_storage_bucket(gcp_project_name: str,
     Returns:
       google.cloud.storage.bucket.Bucket instance
     """
-    storage_client = storage.Client(project=gcp_project_name,
-                                    credentials=_get_credentials())
+    storage_client = _get_storage_client(gcp_project_name)
     bucket = storage_client.bucket(gcs_bucket_name)
 
     return bucket
