@@ -24,15 +24,15 @@ $ pipenv install proc_gcs_utils = "==0.0.1"
 ```
 
 ### Authentication
-To function properly, this code needs credentials that it can use to authenticate against the Google Cloud Storage API.  Credentials can be provided in one of two ways:
+To function properly, this code needs credentials that it can use to authenticate against the Google Cloud Storage API.  Credentials can be provided in one of two ways, and the code will look for them in this order:
 
-1. Personal Credentials.
+1. Service Account Key.
+
+Before running this code, create an environment variable named `SERVICE_ACCOUNT_KEY` containing the JSON key for a Google Cloud service account with the necessary permissions to perform the actions you're trying to perform in GCS.
+
+2. Personal Credentials.
 
 Before running this code, authenticate with the Google Cloud Storage API using the `gcloud` command line tool:
 ```
 $ gcloud auth application-default login --project GCP_PROJECT_NAME
 ```
-
-2. Service Account Key.
-
-Before running this code, create an environment variable named `SERVICE_ACCOUNT_KEY` containing the JSON key for a Google Cloud service account with the necessary permissions to perform the actions you're trying to perform in GCS.
