@@ -3,6 +3,7 @@ import json
 import os
 import re
 from typing import List
+import warnings
 
 import google
 from google.api_core.page_iterator import HTTPIterator
@@ -10,11 +11,22 @@ from google.cloud import storage
 from google.oauth2 import service_account
 
 
-def _get_credentials() -> service_account.Credentials:
-    key = json.loads(os.environ['SERVICE_ACCOUNT_KEY'])
-    credentials = service_account.Credentials.from_service_account_info(key)
+def _get_storage_client(gcp_project_name: str) -> storage.client.Client:
+    if 'SERVICE_ACCOUNT_KEY' in os.environ:
+        key = os.environ['SERVICE_ACCOUNT_KEY']
+        try:
+            key = json.loads(key)
+        except json.decoder.JSONDecodeError as e:
+            raise ValueError('SERVICE_ACCOUNT_KEY is empty or contains invalid JSON') from e
+        credentials = service_account.Credentials.from_service_account_info(key)
+        client = storage.Client(project=gcp_project_name,
+                                credentials=credentials)
+    else:
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            client = storage.Client(project=gcp_project_name)
 
-    return credentials
+    return client
 
 
 def gcs_join(path_segments, include_protocol=False):
@@ -45,8 +57,7 @@ def get_storage_bucket(gcp_project_name: str,
     Returns:
       google.cloud.storage.bucket.Bucket instance
     """
-    storage_client = storage.Client(project=gcp_project_name,
-                                    credentials=_get_credentials())
+    storage_client = _get_storage_client(gcp_project_name)
     bucket = storage_client.bucket(gcs_bucket_name)
 
     return bucket
@@ -227,9 +238,9 @@ def copy_file(gcp_project_name: str,
 
 
 def upload_file(gcp_project_name: str,
-                       gcs_bucket_name: str,
-                       gcs_bucket_path: str,
-                       file_path: str) -> None:
+                gcs_bucket_name: str,
+                gcs_bucket_path: str,
+                file_path: str) -> None:
     """Upload a single file to a Google Cloud Storage Bucket
 
     Args:
@@ -246,9 +257,9 @@ def upload_file(gcp_project_name: str,
 
 
 def upload_files(gcp_project_name: str,
-                        gcs_bucket_name: str,
-                        gcs_bucket_path: str,
-                        directory: str) -> None:
+                 gcs_bucket_name: str,
+                 gcs_bucket_path: str,
+                 directory: str) -> None:
     """Upload files to a Google Cloud Storage Bucket
 
     Args:
