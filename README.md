@@ -20,7 +20,7 @@ $ export PYPI_REPOSITORY_PASSWORD="$(vault read --field=value coral-atlas/main/p
 Once the source has been added to your Pipfile, install the package like any other:
 
 ```
-$ pipenv install proc_gcs_utils = "==0.0.1"
+$ pipenv install gcsutils = "==0.0.1"
 ```
 
 ### Authentication
