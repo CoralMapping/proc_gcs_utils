@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import os
 import re
 import time
@@ -10,6 +11,9 @@ import google
 from google.api_core.page_iterator import HTTPIterator
 from google.cloud import storage
 from google.oauth2 import service_account
+
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
 def _get_storage_client(gcp_project_name: str) -> storage.client.Client:
@@ -223,6 +227,7 @@ def _copy_blob(blob, bucket, new_path, retries=0):
     try:
         bucket.copy_blob(blob, bucket, new_path)
     except google.api_core.exceptions.ServiceUnavailable as e:
+        logging.warning(e)
         if retries > 5:
             raise e
         time.sleep(2**retries)
