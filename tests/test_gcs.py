@@ -17,7 +17,7 @@ from gcsutils.gcs import (copy_file,
                           rename_file,
                           upload_file,
                           upload_files)
-from gcsutils.tests.test_data import TEST_SERVICE_ACCOUNT_KEY
+from tests.test_data import TEST_SERVICE_ACCOUNT_KEY
 
 
 GCP_PROJECT_NAME = 'coral-atlas'
