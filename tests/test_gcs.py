@@ -5,10 +5,12 @@ import string
 import tempfile
 from unittest.mock import MagicMock, patch
 
+import google
 import pytest
 
 from gcsutils import gcs
-from gcsutils.gcs import (copy_file,
+from gcsutils.gcs import (_copy_blob,
+                          copy_file,
                           download_file,
                           download_files,
                           gcs_join,
@@ -102,6 +104,31 @@ class TestGetClient:
         assert actual_client == fake_client
         mock_storage.Client.assert_called_once_with(project=GCP_PROJECT_NAME)
         mock_service_account.Credentials.from_service_account_info.assert_not_called()
+
+
+class TestCopyBlob:
+
+    fake_blob = 'my_fake_gcs_blob'
+    fake_new_gcs_path = 'bogus/new/path/to/blob'
+
+    def test_happy_path(self):
+        mock_bucket = MagicMock()
+        mock_bucket.copy_blob.side_effect = [
+            google.api_core.exceptions.ServiceUnavailable('foo'),
+            google.api_core.exceptions.ServiceUnavailable('foo'),
+            None
+        ]
+
+        _copy_blob(self.fake_blob, mock_bucket, self.fake_new_gcs_path)
+
+        assert len(mock_bucket.copy_blob.mock_calls) == 3
+
+    def test_raises_after_five_retries(self):
+        mock_bucket = MagicMock()
+        mock_bucket.copy_blob.side_effect = google.api_core.exceptions.ServiceUnavailable('foo')
+
+        with pytest.raises(google.api_core.exceptions.ServiceUnavailable):
+            _copy_blob(self.fake_blob, mock_bucket, self.fake_new_gcs_path, retries=6)
 
 
 @pytest.mark.integration

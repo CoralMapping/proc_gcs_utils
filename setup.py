@@ -7,7 +7,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="gcsutils",
-    version="1.1.0",
+    version="1.1.1",
     description="Utility functions for Google Cloud Storage",
     long_description=long_description,
     long_description_content_type="text/markdown",
