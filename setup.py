@@ -6,12 +6,12 @@ with open("README.md", "r") as f:
 
 
 setuptools.setup(
-    name="proc-gcs-utils",
+    name="gcsutils",
     version="1.1.0",
     description="Utility functions for Google Cloud Storage",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    packages=['proc_gcs_utils'],
+    packages=['gcsutils'],
     install_requires=['google-cloud-storage==1.16.1'],
     classifiers=[
         "Programming Language :: Python :: 3",

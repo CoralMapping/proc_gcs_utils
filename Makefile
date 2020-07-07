@@ -5,7 +5,7 @@ SHELL := /bin/sh
 
 .DEFAULT_GOAL := menu
 
-archive := $(CURDIR)/dist/proc-gcs-utils-*.tar.gz
+archive := $(CURDIR)/dist/gcsutils-*.tar.gz
 pypi_repository_url := https://vulcin.jfrog.io/artifactory/api/pypi/pypi-coral-atlas
 pypi_repository_username := coral-atlas-pip-write
 pypi_repository_password ?= $(PYPI_REPOSITORY_PASSWORD)
@@ -19,14 +19,14 @@ menu:
 	@ grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-35s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: test
-test:  $(shell find $(CURDIR)/proc_gcs_utils -type f) ## Run the unit and integration tests
-	@ pipenv run pytest -c proc_gcs_utils/tests/pytest.ini
+test:  $(shell find $(CURDIR)/gcsutils -type f) ## Run the unit and integration tests
+	@ pipenv run pytest -c tests/pytest.ini
 
 .PHONY: build
 build:  $(archive) ## Build the Python archive
 	@ :
 
-$(archive): setup.py $(shell find proc_gcs_utils -type f)
+$(archive): setup.py $(shell find gcsutils -type f)
 	@ pipenv run python setup.py egg_info --tag-build=$(beta_tag_suffix) sdist
 
 .PHONY: publish

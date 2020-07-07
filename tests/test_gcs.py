@@ -7,17 +7,17 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from proc_gcs_utils import gcs
-from proc_gcs_utils.gcs import (copy_file,
-                                download_file,
-                                download_files,
-                                gcs_join,
-                                list_bucket_contents,
-                                list_bucket_folders,
-                                rename_file,
-                                upload_file,
-                                upload_files)
-from proc_gcs_utils.tests.test_data import TEST_SERVICE_ACCOUNT_KEY
+from gcsutils import gcs
+from gcsutils.gcs import (copy_file,
+                          download_file,
+                          download_files,
+                          gcs_join,
+                          list_bucket_contents,
+                          list_bucket_folders,
+                          rename_file,
+                          upload_file,
+                          upload_files)
+from tests.test_data import TEST_SERVICE_ACCOUNT_KEY
 
 
 GCP_PROJECT_NAME = 'coral-atlas'
@@ -64,7 +64,7 @@ class TestGetClient:
         mock_service_account = MagicMock()
         fake_credentials = MagicMock()
         mock_service_account.Credentials.from_service_account_info.return_value = fake_credentials
-        with patch.multiple('proc_gcs_utils.gcs',
+        with patch.multiple('gcsutils.gcs',
                             os=mock_os,
                             service_account=mock_service_account,
                             storage=mock_storage):
@@ -80,7 +80,7 @@ class TestGetClient:
         fake_service_account_key = ''
         mock_os.environ = {'SERVICE_ACCOUNT_KEY': fake_service_account_key}
         with pytest.raises(ValueError) as e:
-            with patch('proc_gcs_utils.gcs.os', mock_os):
+            with patch('gcsutils.gcs.os', mock_os):
                 gcs._get_storage_client(GCP_PROJECT_NAME)
 
         expected_message = 'SERVICE_ACCOUNT_KEY is empty or contains invalid JSON'
@@ -93,7 +93,7 @@ class TestGetClient:
         mock_os = MagicMock()
         mock_os.environ = {}
         mock_service_account = MagicMock()
-        with patch.multiple('proc_gcs_utils.gcs',
+        with patch.multiple('gcsutils.gcs',
                             os=mock_os,
                             service_account=mock_service_account,
                             storage=mock_storage):
@@ -125,7 +125,7 @@ def test_gcs_bucket_upload_download():
         with open(os.path.join(input_dir, filename1), 'w') as f:
             f.write(file_1_contents)
 
-        with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+        with patch('gcsutils.gcs.os.environ', test_environ):
             upload_files(GCP_PROJECT_NAME,
                          GCS_BUCKET_NAME,
                          GCS_BUCKET_PATH,
@@ -134,7 +134,7 @@ def test_gcs_bucket_upload_download():
         with open(os.path.join(input_dir, filename2), 'w') as f:
             f.write(file_2_contents)
 
-        with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+        with patch('gcsutils.gcs.os.environ', test_environ):
             upload_file(GCP_PROJECT_NAME,
                         GCS_BUCKET_NAME,
                         GCS_BUCKET_PATH,
@@ -149,7 +149,7 @@ def test_gcs_bucket_upload_download():
             with open(os.path.join(too_deep_dir, too_deep_file_name), 'w') as f:
                 f.write(too_deep_file_contents)
 
-            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+            with patch('gcsutils.gcs.os.environ', test_environ):
                 upload_files(GCP_PROJECT_NAME,
                              GCS_BUCKET_NAME,
                              gcs_join([GCS_BUCKET_PATH, TOO_DEEP_FOLDER_NAME]),
@@ -161,7 +161,7 @@ def test_gcs_bucket_upload_download():
                              too_deep_dir)
 
             # Verify we can list the test files
-            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+            with patch('gcsutils.gcs.os.environ', test_environ):
                 blobs = list_bucket_contents(GCP_PROJECT_NAME,
                                              GCS_BUCKET_NAME,
                                              GCS_BUCKET_PATH)
@@ -172,7 +172,7 @@ def test_gcs_bucket_upload_download():
                 ]
 
             # Verify we can move a test file
-            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+            with patch('gcsutils.gcs.os.environ', test_environ):
                 rename_file(GCP_PROJECT_NAME,
                             GCS_BUCKET_NAME,
                             gcs_join([GCS_BUCKET_PATH, filename0]),
@@ -203,7 +203,7 @@ def test_gcs_bucket_upload_download():
                             gcs_join([GCS_BUCKET_PATH, filename0]))
 
             # Verify we can copy a test file
-            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+            with patch('gcsutils.gcs.os.environ', test_environ):
                 copy_file(GCP_PROJECT_NAME,
                           GCS_BUCKET_NAME,
                           gcs_join([GCS_BUCKET_PATH, filename0]),
@@ -234,7 +234,7 @@ def test_gcs_bucket_upload_download():
                             gcs_join([GCS_BUCKET_PATH, filename0]))
 
             # Verify we can list the subfolder(s) in the test data folder
-            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+            with patch('gcsutils.gcs.os.environ', test_environ):
                 folders = list_bucket_folders(GCP_PROJECT_NAME,
                                               GCS_BUCKET_NAME,
                                               GCS_BUCKET_PATH)
@@ -246,7 +246,7 @@ def test_gcs_bucket_upload_download():
             os.mkdir(output_dir)
 
             # ...one at a time
-            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+            with patch('gcsutils.gcs.os.environ', test_environ):
                 download_file(GCP_PROJECT_NAME,
                               GCS_BUCKET_NAME,
                               gcs_join([GCS_BUCKET_PATH, filename0]),
@@ -258,7 +258,7 @@ def test_gcs_bucket_upload_download():
 
 
             # ...all at once
-            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+            with patch('gcsutils.gcs.os.environ', test_environ):
                 download_files(GCP_PROJECT_NAME,
                                GCS_BUCKET_NAME,
                                GCS_BUCKET_PATH,
@@ -273,7 +273,7 @@ def test_gcs_bucket_upload_download():
 
             # Verify raises ValueError if download file not found
             try:
-                with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+                with patch('gcsutils.gcs.os.environ', test_environ):
                     download_file(GCP_PROJECT_NAME,
                                            GCS_BUCKET_NAME,
                                            'file/does/not/exists.txt',
@@ -282,7 +282,7 @@ def test_gcs_bucket_upload_download():
                 pass
 
         finally:
-            with patch('proc_gcs_utils.gcs.os.environ', test_environ):
+            with patch('gcsutils.gcs.os.environ', test_environ):
                 blobs = list_bucket_contents(GCP_PROJECT_NAME,
                                              GCS_BUCKET_NAME,
                                              GCS_BUCKET_PATH,
