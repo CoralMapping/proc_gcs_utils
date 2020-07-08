@@ -1,7 +1,9 @@
 import asyncio
 import json
+import logging
 import os
 import re
+import time
 from typing import List
 import warnings
 
@@ -9,6 +11,9 @@ import google
 from google.api_core.page_iterator import HTTPIterator
 from google.cloud import storage
 from google.oauth2 import service_account
+
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
 def _get_storage_client(gcp_project_name: str) -> storage.client.Client:
@@ -218,6 +223,17 @@ def rename_file(gcp_project_name: str,
     bucket.rename_blob(blob, new_gcs_file_path)
 
 
+def _copy_blob(blob, bucket, new_path, retries=0):
+    try:
+        bucket.copy_blob(blob, bucket, new_path)
+    except google.api_core.exceptions.ServiceUnavailable as e:
+        logging.warning(e)
+        if retries > 5:
+            raise e
+        time.sleep(2**retries)
+        _copy_blob(blob, bucket, new_path, retries=retries+1)
+
+
 def copy_file(gcp_project_name: str,
               gcs_bucket_name: str,
               original_gcs_file_path: str,
@@ -234,7 +250,7 @@ def copy_file(gcp_project_name: str,
     """
     bucket = get_storage_bucket(gcp_project_name, gcs_bucket_name)
     blob = bucket.blob(original_gcs_file_path)
-    bucket.copy_blob(blob, bucket, new_gcs_file_path)
+    _copy_blob(blob, bucket, new_gcs_file_path)
 
 
 def upload_file(gcp_project_name: str,
