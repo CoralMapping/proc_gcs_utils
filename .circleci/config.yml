@@ -25,7 +25,7 @@ jobs:
           if [ "$CIRCLE_BRANCH" = "develop" ]; then
             make build beta_tag_suffix=""
           else
-            make build beta_tag_suffix="-${CIRCLE_BRANCH//[-_]/}"
+            make build beta_tag_suffix="b$(git rev-list --count HEAD ^develop)"
           fi
       - persist_to_workspace:
           root: .
