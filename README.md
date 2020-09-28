@@ -43,14 +43,16 @@ $ pipenv run pytest -m "not integration"
 
 This project uses the [setuptools](https://packaging.python.org/key_projects/#setuptools) Python package for packaging as described [here](https://packaging.python.org/tutorials/packaging-projects/).
 
-When building via the `make build` command, you may optionally append to the package name using the `beta_tag_suffix`.  For example, if the current version of `gcsutils` specified in the `setup.py` module is `1.2.3`, then
+When building via the `make build` command, you may optionally append to the package name using the `prerelease` argument. For example, if the current version of `gcsutils` specified in the `setup.py` module is `1.2.3`, then
 ```
-$ make build beta_tag_suffix=rc1
+$ make build prerelease=rc1
 ```
-will produce a package named `gcsutils-1.2.3rc1`. The default is to use the current GitHub branch name as the `beta_tag_suffix`. Specify no suffix with
+will produce a package named `gcsutils-1.2.3rc1`. The default is a beta prerelease name incremented by each git commit (eg/ `1.2.3b7` for the seventh commit on this branch). Specify a final release with
 ```
-$ make build beta_tag_suffix=""
+$ make build prerelease=""
 ```
+
+Note that prerelease names must comply with [PEP 440](https://www.python.org/dev/peps/pep-0440/).
 
 #### Publishing
 This project uses the [twine](https://packaging.python.org/key_projects/#twine) Python package for distribution as described [here](https://packaging.python.org/tutorials/packaging-projects/).

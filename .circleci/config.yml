@@ -23,9 +23,9 @@ jobs:
       - setup
       - run: |
           if [ "$CIRCLE_BRANCH" = "develop" ]; then
-            make build beta_tag_suffix=""
+            make build prerelease=""
           else
-            make build beta_tag_suffix="b$(git rev-list --count HEAD ^develop)"
+            make build prerelease="b$(git rev-list --count HEAD ^develop)"
           fi
       - persist_to_workspace:
           root: .

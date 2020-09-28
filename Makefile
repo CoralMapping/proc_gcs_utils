@@ -9,7 +9,7 @@ archive := $(CURDIR)/dist/gcsutils-*
 pypi_repository := testpypi
 pypi_repository_username := $(PYPI_REPOSITORY_USERNAME)
 pypi_repository_password ?= $(PYPI_REPOSITORY_PASSWORD)
-beta_tag_suffix ?= -$(shell ${$(git symbolic-ref --short HEAD)//[-_]/})
+prerelease ?= b$(shell git rev-list --count HEAD ^develop)
 
 %:
 	@:
@@ -27,7 +27,7 @@ build:  $(archive) ## Build the Python archive
 	@ :
 
 $(archive): setup.py $(shell find gcsutils -type f)
-	@ pipenv run python setup.py egg_info --tag-build=$(beta_tag_suffix) sdist bdist_wheel
+	@ pipenv run python setup.py egg_info --tag-build=$(prerelease) sdist bdist_wheel
 
 .PHONY: publish
 publish:  $(archive) ## Publish the Python archive to the PyPi repository
