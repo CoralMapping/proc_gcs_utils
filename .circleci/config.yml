@@ -15,8 +15,8 @@ jobs:
     steps:
       - setup
       - run: |
-        export SERVICE_ACCOUNT_KEY="$(echo $ENCODED_INTEGRATION_TEST_KEY | base64 -d)"
-        make test
+          export SERVICE_ACCOUNT_KEY="$(echo $ENCODED_INTEGRATION_TEST_KEY | base64 -d)"
+          make test
   build:
     executor: circleci_executor
     steps:
