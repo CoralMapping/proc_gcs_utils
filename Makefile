@@ -6,8 +6,8 @@ SHELL := /bin/sh
 .DEFAULT_GOAL := menu
 
 archive := $(CURDIR)/dist/gcsutils-*
-pypi_repository_url := https://vulcin.jfrog.io/artifactory/api/pypi/pypi-coral-atlas
-pypi_repository_username := coral-atlas-pip-write
+pypi_repository := testpypi
+pypi_repository_username := $(PYPI_REPOSITORY_USERNAME)
 pypi_repository_password ?= $(PYPI_REPOSITORY_PASSWORD)
 beta_tag_suffix ?= -$(shell git symbolic-ref --short HEAD)
 
@@ -32,7 +32,7 @@ $(archive): setup.py $(shell find gcsutils -type f)
 .PHONY: publish
 publish:  $(archive) ## Publish the Python archive to the PyPi repository
 	@ pipenv run python -m twine upload \
-		--repository-url $(pypi_repository_url) \
+		--repository $(pypi_repository) \
 		--username $(pypi_repository_username) \
 		--password $(pypi_repository_password) \
 		--disable-progress-bar \
