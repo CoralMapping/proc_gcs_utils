@@ -5,7 +5,7 @@ SHELL := /bin/sh
 
 .DEFAULT_GOAL := menu
 
-archive := $(CURDIR)/dist/gcsutils-*.tar.gz
+archive := $(CURDIR)/dist/gcsutils-*
 pypi_repository_url := https://vulcin.jfrog.io/artifactory/api/pypi/pypi-coral-atlas
 pypi_repository_username := coral-atlas-pip-write
 pypi_repository_password ?= $(PYPI_REPOSITORY_PASSWORD)
@@ -27,7 +27,7 @@ build:  $(archive) ## Build the Python archive
 	@ :
 
 $(archive): setup.py $(shell find gcsutils -type f)
-	@ pipenv run python setup.py egg_info --tag-build=$(beta_tag_suffix) sdist
+	@ pipenv run python setup.py egg_info --tag-build=$(beta_tag_suffix) sdist bdist_wheel
 
 .PHONY: publish
 publish:  $(archive) ## Publish the Python archive to the PyPi repository
