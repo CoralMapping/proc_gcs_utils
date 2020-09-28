@@ -43,6 +43,7 @@ jobs:
             make publish pypi_repository=pypi pypi_repository_username="__token__" pypi_repository_password="$PYPI_ORG_TOKEN"
           else
             make publish pypi_repository_username="__token__" pypi_repository_password="$TEST_PYPI_ORG_TOKEN"
+          fi
 workflows:
   version: 2
   ci:
