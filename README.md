@@ -60,9 +60,16 @@ When publishing via the `make publish` command, the default PyPI repository is [
 $ make publish pypi_repository=pypi
 ```
 
-The credentials necessary to publish to the target PyPI repository are expected to be provided as these environment variables:
+The credentials necessary to publish to the target PyPI repository can be provided in one of two ways.
+
+1. As these environment variables:
 
 | Env Var                      | Notes                                      |
 | :--------:                   | ------------------------------------------ |
 | `PYPI_REPOSITORY_USERNAME`   | PyPI account username. If authenticating [using a token](https://test.pypi.org/help/#apitoken), use the literal string `__token__`. |
 | `PYPI_REPOSITORY_PASSWORD`   | PyPI account password. If authenticating [using a token](https://test.pypi.org/help/#apitoken), use the token contents. |
+
+2. At the `make publish` command:
+```
+$ make publish pypi_repository_password="foo" pypi_repository_password="bar"
+```
