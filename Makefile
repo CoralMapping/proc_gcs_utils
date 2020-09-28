@@ -9,7 +9,7 @@ archive := $(CURDIR)/dist/gcsutils-*
 pypi_repository := testpypi
 pypi_repository_username := $(PYPI_REPOSITORY_USERNAME)
 pypi_repository_password ?= $(PYPI_REPOSITORY_PASSWORD)
-beta_tag_suffix ?= -$(shell git symbolic-ref --short HEAD)
+beta_tag_suffix ?= -$(shell ${$(git symbolic-ref --short HEAD)//[-_]/})
 
 %:
 	@:
