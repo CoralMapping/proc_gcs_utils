@@ -26,7 +26,8 @@ jobs:
             make build prerelease=""
           else
             git checkout develop
-            COMMITS_AHEAD=$(git rev-list --count develop --not origin/develop)
+            export COMMITS_AHEAD=$(git rev-list --count develop --not origin/develop)
+            git checkout -
             make build prerelease="b$(COMMITS_AHEAD)"
           fi
       - persist_to_workspace:
