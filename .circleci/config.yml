@@ -25,10 +25,7 @@ jobs:
           if [ "$CIRCLE_BRANCH" = "develop" ]; then
             make build prerelease=""
           else
-            git checkout develop
-            export COMMITS_AHEAD=$(git rev-list --count develop --not origin/develop)
-            git checkout -
-            make build prerelease="b$(COMMITS_AHEAD)"
+            make build prerelease="b$(git rev-list --count HEAD --not origin/develop)"
           fi
       - persist_to_workspace:
           root: .
