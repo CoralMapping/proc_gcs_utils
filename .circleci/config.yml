@@ -14,29 +14,36 @@ jobs:
     executor: circleci_executor
     steps:
       - setup
-      - run: make test
+      - run: |
+          export SERVICE_ACCOUNT_KEY="$(echo $ENCODED_INTEGRATION_TEST_KEY | base64 -d)"
+          make test
   build:
     executor: circleci_executor
     steps:
       - setup
       - run: |
           if [ "$CIRCLE_BRANCH" = "develop" ]; then
-            make build beta_tag_suffix=""
+            make build prerelease=""
           else
-            make build beta_tag_suffix="-$CIRCLE_BRANCH"
+            make build prerelease="b$(git rev-list --count HEAD --not origin/develop)"
           fi
       - persist_to_workspace:
           root: .
           paths:
-            - dist/*.tar.gz
+            - dist/*
   publish:
     executor: circleci_executor
     steps:
       - setup
       - attach_workspace:
           at: .
-      - run: touch dist/*.tar.gz
-      - run: make publish pypi_repository_password="$PYPI_REPOSITORY_PASSWORD"
+      - run: |
+          touch dist/*
+          if [ "$CIRCLE_BRANCH" = "develop" ]; then
+            make publish pypi_repository=pypi pypi_repository_username="__token__" pypi_repository_password="$PYPI_ORG_TOKEN"
+          else
+            make publish pypi_repository_username="__token__" pypi_repository_password="$TEST_PYPI_ORG_TOKEN"
+          fi
 workflows:
   version: 2
   ci:

@@ -5,11 +5,11 @@ SHELL := /bin/sh
 
 .DEFAULT_GOAL := menu
 
-archive := $(CURDIR)/dist/gcsutils-*.tar.gz
-pypi_repository_url := https://vulcin.jfrog.io/artifactory/api/pypi/pypi-coral-atlas
-pypi_repository_username := coral-atlas-pip-write
+archive := $(CURDIR)/dist/gcsutils-*
+pypi_repository := testpypi
+pypi_repository_username := $(PYPI_REPOSITORY_USERNAME)
 pypi_repository_password ?= $(PYPI_REPOSITORY_PASSWORD)
-beta_tag_suffix ?= -$(shell git symbolic-ref --short HEAD)
+prerelease ?= b$(shell git rev-list --count HEAD ^develop)
 
 %:
 	@:
@@ -27,12 +27,12 @@ build:  $(archive) ## Build the Python archive
 	@ :
 
 $(archive): setup.py $(shell find gcsutils -type f)
-	@ pipenv run python setup.py egg_info --tag-build=$(beta_tag_suffix) sdist
+	@ pipenv run python setup.py egg_info --tag-build=$(prerelease) sdist bdist_wheel
 
 .PHONY: publish
 publish:  $(archive) ## Publish the Python archive to the PyPi repository
 	@ pipenv run python -m twine upload \
-		--repository-url $(pypi_repository_url) \
+		--repository $(pypi_repository) \
 		--username $(pypi_repository_username) \
 		--password $(pypi_repository_password) \
 		--disable-progress-bar \
