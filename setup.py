@@ -25,6 +25,7 @@ setuptools.setup(
     name="gcsutils",
     version="1.1.2",
     description="Utility functions for Google Cloud Storage",
+    author="Matt Skone",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=['gcsutils'],
