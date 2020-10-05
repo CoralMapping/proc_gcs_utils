@@ -29,9 +29,6 @@ from google.cloud import storage
 from google.oauth2 import service_account
 
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s %(message)s')
-
-
 def _get_storage_client(gcp_project_name: str) -> storage.client.Client:
     if 'SERVICE_ACCOUNT_KEY' in os.environ:
         key = os.environ['SERVICE_ACCOUNT_KEY']
