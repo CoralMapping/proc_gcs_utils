@@ -8,6 +8,7 @@ repos:
   hooks:
   - id: flake8
     additional_dependencies: [
+      flake8-breakpoint,
       flake8-bugbear,
       flake8-builtins,
       flake8-docstrings,
