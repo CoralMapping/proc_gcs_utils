@@ -16,7 +16,6 @@ permissions and limitations under the License.
 
 import setuptools
 
-
 with open("README.md", "r") as f:
     long_description = f.read()
 

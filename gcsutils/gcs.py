@@ -116,7 +116,8 @@ def _upload_files_to_bucket(
     ioloop.run_until_complete(tasks)
 
 
-async def _download_blob(blob: str, directory: str):
+async def _download_blob(blob: storage.blob.Blob, directory: str):
+    breakpoint()
     blob_base_name = blob.name.split("/")[-1]
     if blob_base_name:
         blob.download_to_filename(os.path.join(directory, blob_base_name))

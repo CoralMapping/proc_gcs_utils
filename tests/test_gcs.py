@@ -38,7 +38,6 @@ from gcsutils.gcs import (
     upload_files,
 )
 
-
 GCP_PROJECT_NAME = "coral-atlas"
 GCS_BUCKET_NAME = "coral-atlas-integration-tests"
 GCS_BUCKET_PATH = "path/to/test/data"
@@ -148,9 +147,7 @@ class TestCopyBlob:
 
     def test_raises_after_five_retries(self):
         mock_bucket = MagicMock()
-        mock_bucket.copy_blob.side_effect = (
-            ServiceUnavailable("foo")
-        )
+        mock_bucket.copy_blob.side_effect = ServiceUnavailable("foo")
 
         with pytest.raises(ServiceUnavailable):
             _copy_blob(self.fake_blob, mock_bucket, self.fake_new_gcs_path, retries=6)
