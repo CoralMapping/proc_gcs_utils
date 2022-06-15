@@ -20,8 +20,8 @@ import logging
 import os
 import re
 import time
-from typing import List
 import warnings
+from typing import List
 
 import google
 from google.api_core.page_iterator import HTTPIterator
