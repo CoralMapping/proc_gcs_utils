@@ -23,17 +23,17 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="gcsutils",
-    version="1.1.5",
+    version="2.0.0",
     description="Utility functions for Google Cloud Storage",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=['gcsutils'],
-    install_requires=['google-cloud-storage==1.16.1'],
+    install_requires=['google-cloud-storage==2.4.0'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.10',
     url='https://github.com/CoralMapping/proc_gcs_utils'
 )
