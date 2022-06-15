@@ -1,16 +1,16 @@
 """
- Copyright Vulcan Inc. 2018-2020
+Copyright Vulcan Inc. 2018-2020.
 
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
+Licensed under the Apache License, Version 2.0 (the "License").
+You may not use this file except in compliance with the License.
+A copy of the License is located at
 
-     http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
+or in the "license" file accompanying this file. This file is distributed
+on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+express or implied. See the License for the specific language governing
+permissions and limitations under the License.
 """
 
 
@@ -21,8 +21,8 @@ import string
 import tempfile
 from unittest.mock import MagicMock, patch
 
-import google
 import pytest
+from google.api_core.exceptions import ServiceUnavailable
 
 from gcsutils import gcs
 from gcsutils.gcs import (
@@ -61,11 +61,11 @@ class TestGcsJoin:
             gcs_join([])
 
     @pytest.mark.parametrize(
-        "input,expected_path",
+        "test_input,expected_path",
         [(["foo", ""], "foo"), (["foo/", ""], "foo"), (["foo", "", ""], "foo")],
     )
-    def test_no_extra_forward_slashes(self, input, expected_path):
-        actual_path = gcs_join(input)
+    def test_no_extra_forward_slashes(self, test_input, expected_path):
+        actual_path = gcs_join(test_input)
         assert actual_path == expected_path
 
 
@@ -91,7 +91,7 @@ class TestGetClient:
             actual_client = gcs._get_storage_client(GCP_PROJECT_NAME)
 
         assert actual_client == fake_client
-        mock_service_account.Credentials.from_service_account_info.assert_called_once_with(
+        mock_service_account.Credentials.from_service_account_info.assert_called_once_with(  # noqa
             fake_service_account_key
         )
         mock_storage.Client.assert_called_once_with(
@@ -137,8 +137,8 @@ class TestCopyBlob:
     def test_happy_path(self):
         mock_bucket = MagicMock()
         mock_bucket.copy_blob.side_effect = [
-            google.api_core.exceptions.ServiceUnavailable("foo"),
-            google.api_core.exceptions.ServiceUnavailable("foo"),
+            ServiceUnavailable("foo"),
+            ServiceUnavailable("foo"),
             None,
         ]
 
@@ -149,10 +149,10 @@ class TestCopyBlob:
     def test_raises_after_five_retries(self):
         mock_bucket = MagicMock()
         mock_bucket.copy_blob.side_effect = (
-            google.api_core.exceptions.ServiceUnavailable("foo")
+            ServiceUnavailable("foo")
         )
 
-        with pytest.raises(google.api_core.exceptions.ServiceUnavailable):
+        with pytest.raises(ServiceUnavailable):
             _copy_blob(self.fake_blob, mock_bucket, self.fake_new_gcs_path, retries=6)
 
 

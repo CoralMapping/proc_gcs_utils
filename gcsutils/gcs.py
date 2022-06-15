@@ -1,16 +1,16 @@
 """
- Copyright Vulcan Inc. 2018-2020
+Copyright Vulcan Inc. 2018-2020.
 
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
+Licensed under the Apache License, Version 2.0 (the "License").
+You may not use this file except in compliance with the License.
+A copy of the License is located at
 
-     http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
+or in the "license" file accompanying this file. This file is distributed
+on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+express or implied. See the License for the specific language governing
+permissions and limitations under the License.
 """
 
 
@@ -49,13 +49,12 @@ def _get_storage_client(gcp_project_name: str) -> storage.client.Client:
 
 
 def gcs_join(path_segments, include_protocol=False):
-    """Build a path using GCS path separators
+    """Build a path using GCS path separators.
 
     Args:
       path_segments - list of string path segments. May include file name.
       include_protocol - if True, prepend 'gs://' protocol to path.
     """
-
     if not path_segments:
         raise ValueError("At least one path segment is required")
     path = "/".join(path_segments)
@@ -69,7 +68,7 @@ def gcs_join(path_segments, include_protocol=False):
 def get_storage_bucket(
     gcp_project_name: str, gcs_bucket_name: str
 ) -> storage.bucket.Bucket:
-    """Get a Google Cloud Storage bucket
+    """Get a Google Cloud Storage bucket.
 
     Args:
       gcp_project_name (str): the Google Cloud Project name
@@ -135,7 +134,7 @@ def list_bucket_contents(
     gcs_bucket_path: str,
     recurse: bool = False,
 ) -> HTTPIterator:
-    """List the blobs in a Google Cloud Storage bucket
+    """List the blobs in a Google Cloud Storage bucket.
 
     Args:
       gcp_project_name (str): the Google Cloud Project name
@@ -159,7 +158,7 @@ def list_bucket_contents(
 def list_bucket_folders(
     gcp_project_name: str, gcs_bucket_name: str, gcs_bucket_path: str
 ) -> list:
-    """List the 'folders' in a Google Cloud Storage bucket path
+    """List the 'folders' in a Google Cloud Storage bucket path.
 
     Args:
       gcp_project_name (str): the Google Cloud Project name
@@ -186,7 +185,7 @@ def download_file(
     gcs_file_path: str,
     local_file_path: str,
 ) -> None:
-    """Download objects from a Google Cloud Storage bucket
+    """Download objects from a Google Cloud Storage bucket.
 
     Args:
       gcp_project_name (str): the Google Cloud Project name
@@ -207,7 +206,7 @@ def download_file(
 def download_files(
     gcp_project_name: str, gcs_bucket_name: str, gcs_bucket_path: str, directory: str
 ) -> None:
-    """Download objects from a Google Cloud Storage bucket
+    """Download objects from a Google Cloud Storage bucket.
 
     Args:
       gcp_project_name (str): the Google Cloud Project name
@@ -226,7 +225,7 @@ def rename_file(
     original_gcs_file_path: str,
     new_gcs_file_path: str,
 ) -> None:
-    """Rename (move) an object in a Google Cloud Storage bucket
+    """Rename (move) an object in a Google Cloud Storage bucket.
 
     Args:
       gcp_project_name (str): the Google Cloud Project name
@@ -258,7 +257,7 @@ def copy_file(
     original_gcs_file_path: str,
     new_gcs_file_path: str,
 ) -> None:
-    """Copy an object in a Google Cloud Storage bucket
+    """Copy an object in a Google Cloud Storage bucket.
 
     Args:
       gcp_project_name (str): the Google Cloud Project name
@@ -276,7 +275,7 @@ def copy_file(
 def upload_file(
     gcp_project_name: str, gcs_bucket_name: str, gcs_bucket_path: str, file_path: str
 ) -> None:
-    """Upload a single file to a Google Cloud Storage Bucket
+    """Upload a single file to a Google Cloud Storage Bucket.
 
     Args:
       gcp_project_name (str): the Google Cloud Project name
@@ -293,7 +292,7 @@ def upload_file(
 def upload_files(
     gcp_project_name: str, gcs_bucket_name: str, gcs_bucket_path: str, directory: str
 ) -> None:
-    """Upload files to a Google Cloud Storage Bucket
+    """Upload files to a Google Cloud Storage Bucket.
 
     Args:
       gcp_project_name (str): the Google Cloud Project name
