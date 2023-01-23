@@ -28,6 +28,7 @@ from gcsutils import gcs
 from gcsutils.gcs import (
     _copy_blob,
     copy_file,
+    delete_file,
     download_file,
     download_files,
     gcs_join,
@@ -332,6 +333,20 @@ def test_gcs_bucket_upload_download():
                 )
             except ValueError:
                 pass
+
+            # Verify we can delete a file
+            delete_file(
+                GCP_PROJECT_NAME,
+                GCS_BUCKET_NAME,
+                gcs_join([GCS_BUCKET_PATH, filename0]),
+            )
+
+            # Verify it was deleted
+            blobs = list_bucket_contents(
+                GCP_PROJECT_NAME, GCS_BUCKET_NAME, GCS_BUCKET_PATH
+            )
+            for blob in blobs:
+                assert filename0 not in blob.name
 
         finally:
             blobs = list_bucket_contents(

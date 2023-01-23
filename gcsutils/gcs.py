@@ -179,6 +179,27 @@ def list_bucket_folders(
     return list(folders)
 
 
+def delete_file(
+    gcp_project_name: str,
+    gcs_bucket_name: str,
+    gcs_file_path: str,
+) -> None:
+    """Delete an object from a Google Cloud Storage bucket.
+
+    Args:
+      gcp_project_name (str): the Google Cloud Project name
+      gcs_bucket_name (str): the Google Cloud Storage bucket name
+      gcs_file_path (str): the path in GCS, including the file name,
+                           of the object to be deleted
+    """
+    bucket = get_storage_bucket(gcp_project_name, gcs_bucket_name)
+    blob = bucket.blob(gcs_file_path)
+    try:
+        blob.delete()
+    except google.api_core.exceptions.NotFound:
+        pass
+
+
 def download_file(
     gcp_project_name: str,
     gcs_bucket_name: str,
