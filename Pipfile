@@ -4,10 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-google-cloud-storage = "~=2.4.0"
+google-cloud-storage = "~=2.7.0"
 pre-commit = "~=2.19.0"
 pytest = "~=7.1.2"
-setuptools = "~=62.4.0"
+setuptools = "~=66.1.0"
 twine = "~=4.0.1"
 
 [dev-packages]
