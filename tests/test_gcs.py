@@ -327,7 +327,7 @@ def test_gcs_bucket_upload_download():
                 download_file(
                     GCP_PROJECT_NAME,
                     GCS_BUCKET_NAME,
-                    "file/does/not/exists.txt",
+                    "file/does/not/exist.txt",
                     os.path.join(output_dir, "does_not_exist.txt"),
                 )
             except ValueError:
